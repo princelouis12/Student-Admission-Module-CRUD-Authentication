@@ -1,0 +1,58 @@
+import java.io.IOException;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import com.student.dao.UserDAO;
+import com.student.model.User;
+
+@WebServlet("/login")
+public class Servlet extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String action = request.getParameter("action");
+        if ("login".equals(action)) {
+            performLogin(request, response);
+        } else if ("register".equals(action)) {
+            performRegistration(request, response);
+        }
+    }
+
+    private void performLogin(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String username = request.getParameter("username");
+        String password = request.getParameter("password");
+
+        UserDAO userDAO = new UserDAO();
+        User user = userDAO.getByUsername(username);
+
+        if (user != null && user.getPassword().equals(password)) {
+            // Authentication successful
+            request.getSession().setAttribute("user", user);
+            response.sendRedirect("dashboard");
+        } else {
+            // Authentication failed
+            response.sendRedirect("forgetpassword");
+        }
+    }
+
+    private void performRegistration(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String username = request.getParameter("username");
+        String password = request.getParameter("password");
+
+        // Perform registration logic
+        // For simplicity, let's assume direct success and redirect to login
+        User user = new User();
+        user.setUsername(username);
+        user.setPassword(password);
+
+        UserDAO userDAO = new UserDAO();
+        userDAO.saveOrUpdate(user);
+
+        response.sendRedirect("login.jsp");
+    }
+}

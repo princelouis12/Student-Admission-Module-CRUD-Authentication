@@ -1,0 +1,55 @@
+package com.student.dao;
+
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+import controller.HibernateUtil;
+import com.student.dao.User;
+
+public class UserDAO {
+
+    Transaction transaction = null;
+
+    public void saveOrUpdate(User user) {
+        try {
+            Session session = HibernateUtil.getSessionUser().openSession();
+            transaction = session.beginTransaction();
+            session.saveOrUpdate(user);
+            transaction.commit();
+            session.close();
+        } catch (Exception ex) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            ex.printStackTrace();
+        }
+    }
+
+    public void delete(User user) {
+        try {
+            Session session = HibernateUtil.getSessionUser().openSession();
+            transaction = session.beginTransaction();
+            session.delete(user);
+            transaction.commit();
+            session.close();
+        } catch (Exception ex) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            ex.printStackTrace();
+        }
+    }
+
+    public User getByUsername(String username) {
+        try {
+            Session session = HibernateUtil.getSessionUser().openSession();
+            User user = (User) session.createQuery("FROM User WHERE username = :username")
+                    .setParameter("username", username)
+                    .uniqueResult();
+            session.close();
+            return user;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return null;
+        }
+    }
+}

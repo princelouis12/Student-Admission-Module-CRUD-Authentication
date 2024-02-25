@@ -1,0 +1,64 @@
+package com.student.controller;
+
+import java.io.IOException;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.student.dao.StudentDAO;
+import com.student.model.Student;
+
+@WebServlet("/register")
+public class RegistrationServlet extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        // Retrieve user registration data from the request parameters
+        String firstName = request.getParameter("firstName");
+        String lastName = request.getParameter("lastName");
+        String username = request.getParameter("username");
+        String email = request.getParameter("email");
+        String password = request.getParameter("password");
+
+        // Validate input data
+        if (!isInputValid(firstName, lastName, username, email, password)) {
+            // If input data is not valid, redirect users back to the registration form with an error message
+            response.sendRedirect(request.getContextPath() + "/registration.jsp?error=true");
+            return;
+        }
+        
+        // Create a new Student object with the provided data
+        Student student = new Student(firstName, lastName, username, email, password);
+        
+        // Save the new student to the database using StudentDAO
+        StudentDAO studentDAO = new StudentDAO();
+        studentDAO.saveStudent(student);
+
+        // Redirect users to a success page
+        response.sendRedirect(request.getContextPath() + "/registrationSuccess.jsp");
+    }
+
+    private boolean isInputValid(String firstName, String lastName, String username, String email, String password) {
+        // Perform validation checks here
+        // For example, check if the username and email are unique, and ensure password meets requirements
+        // You can also add additional validation logic as needed
+        // Return true if input is valid, false otherwise
+        
+        // Example: Check if username and email are not empty
+        if (firstName.isEmpty() || lastName.isEmpty() || username.isEmpty() || email.isEmpty() || password.isEmpty()) {
+            return false;
+        }
+        
+        // Example: Check if the username is unique (you'll need to implement this logic)
+        // Example: Check if the email is unique (you'll need to implement this logic)
+        
+        // Example: Check if password meets requirements (e.g., minimum length)
+        if (password.length() < 8) {
+            return false;
+        }
+        
+        return true;
+    }
+}
